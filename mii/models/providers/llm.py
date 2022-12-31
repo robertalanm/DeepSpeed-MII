@@ -155,11 +155,14 @@ def load_hf_llm(model_path, model_name, task_name, mii_config):
     world_size = int(os.getenv('WORLD_SIZE', '1'))
 
     cache_path = mii_cache_path()
+    
+    tokenizer_name = model_name if model_name != 'robertmyers/bpt-30b' else 'facebook/opt-30b'
 
     tokenizer = _attempt_load(AutoTokenizer.from_pretrained,
-                              model_name,
+                              tokenizer_name,
                               cache_path,
-                              kwargs={"padding_side": 'left'})
+                              kwargs={"padding_side": 'left'},
+                              use_fast=True if tokenizer_name != 'facebook/opt-30b' else False)
     tokenizer.pad_token = tokenizer.eos_token
 
     config = _attempt_load(AutoConfig.from_pretrained, model_name, cache_path)
